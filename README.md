@@ -1,112 +1,132 @@
-# 🧾 Ingredient Logger AI Agent
+# 🧾 Receipt OCR Tool
 
-A lightweight vision-powered tool to extract ingredients and prices from receipt images, review/edit the data, and push it to a structured food prep sheet (Google Sheets or Excel).
+Simple OCR tool to extract ingredients and prices from receipt images, review the data, and send it to your spreadsheet.
 
 ---
 
-## ⚙️ Project Goals
+## ⚙️ What It Does
 
-- Upload a receipt image (e.g. from Lidl)
-- Extract item names, prices, quantities (where possible), and the purchase date
-- Show results in an editable table on a review screen
-- Push approved items to Google Sheets (or Excel backup)
+- Upload a receipt image
+- Extract item names, prices, quantities, and purchase date
+- Review/edit the extracted data in a table
+- Send approved data to Google Sheets
 
 ---
 
 ## 📁 Project Structure
 
-ingredient-logger/
+```
+meal-prepping/
 ├── app/
-│ ├── main.py # FastAPI app: routes for upload, process, submit
-│ │
-│ ├── agent/
-│ │ ├── ocr.py # Tesseract/EasyOCR wrapper: extract raw lines from image
-│ │ ├── parser.py # Line filtering + parsing into item dicts
-│ │ └── infer.py # Infer quantity, category, shelf life (if possible)
-│ │
-│ ├── services/
-│ │ └── sheets.py # Google Sheets or MCP integration logic
-│ │
-│ ├── templates/
-│ │ └── review.html # Renders editable table of extracted items
-│ │
-│ └── static/
-│ └── styles.css # Optional minimal CSS
-│
+│   ├── main.py              # FastAPI app: upload, process, submit routes
+│   ├── agent/
+│   │   ├── ocr.py           # OCR wrapper to extract text from images
+│   │   ├── parser.py        # Parse OCR text into structured data
+│   │   └── infer.py         # Clean up quantities and prices
+│   ├── services/
+│   │   └── sheets.py        # Google Sheets integration
+│   ├── templates/
+│   │   └── review.html      # Review page with editable table
+│   └── static/
+│       └── styles.css       # Basic styling
 ├── tests/
-│ └── test_parser.py # Unit tests for OCR and parsing logic
-│
-├── requirements.txt # FastAPI, OCR, Sheets API
-└── README.md # You're here.
+│   └── test_parser.py       # Unit tests
+├── requirements.txt         # Dependencies
+└── README.md
+```
+## 🔄 How It Works
 
-yaml
-## 🧠 App Flow
+```
+[1] Upload receipt image
+        ↓
+[2] OCR extracts text
+        ↓
+[3] Parse into structured data
+        ↓
+[4] Review/edit in table
+        ↓
+[5] Send to Google Sheets
+```
 
-```text
-[1] User uploads receipt image
-        ↓
-[2] /process route:
-    - OCR reads image
-    - Parser filters for item lines
-    - Quantity/price inferred
-        ↓
-[3] /review page:
-    - Shows editable table of extracted items
-    - User approves or edits
-        ↓
-[4] /submit route:
-    - Sends approved items to Google Sheets
+## 📊 Output Example
+
+```json
+[
+  {
+    "Date": "2025-06-29",
+    "Ingredient": "Whole Milk",
+    "Quantity": "2 PT",
+    "Price": "2.40",
+    "Notes": ""
+  },
+  {
+    "Date": "2025-06-29", 
+    "Ingredient": "Indomie Noodles",
+    "Quantity": "1 pack",
+    "Price": "2.00",
+    "Notes": ""
+  }
+]
 ```
 
 
-Example Output
+## 📝 Setup
 
-[
-  {
-    
-  "Date": "2025-06-29",
-  "Ingredient": "Whole Milk",
-  "Quantity": "2 PT",
-  "Notes": "",
-  "Price": "2.4",
-  },
-  {
-    
-  "Date": "2025-06-29",
-  "Ingredient": "Indomie Milk",
-  "Quantity": "1pack",
-  "Notes": "",
-  "Price": "2.0",
-  },
-]
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+2. **Google Sheets API**
+   - Get `credentials.json` from Google Cloud Console
+   - Place in project root
 
-🧾 Google Sheets Setup
-- Use Google Sheets API
-- Authenticate using credentials.json
+3. **Run the app**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
+## 📦 Dependencies
 
-Dependencies (requirements.txt):
-txt
-Copy
-Edit
+```txt
 fastapi
 uvicorn
 pillow
 easyocr
-openai           # optional for VLM
 google-api-python-client
 google-auth
 python-multipart
+```
 
 
-Copilot To-Do Checklist
- Build /upload and /process routes in main.py
+## ✅ Completed Tasks
 
- Write ocr.py to extract text lines
+- ✅ Build /upload and /process routes in main.py
+- ✅ Write ocr.py to extract text lines  
+- ✅ Write parser.py to extract item, price, quantity from lines
+- ✅ Create review.html to show editable rows
+- ✅ Write sheets.py to append rows to a Google Sheet
 
- Write parser.py to extract item, price, quantity from lines
+## 🚀 Quick Start
 
- Create review.html to show editable rows
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
- Write sheets.py to append rows to a Google Sheet
+2. **Setup Google Sheets**
+   - Create a Google Cloud project
+   - Enable Google Sheets API
+   - Download `credentials.json` and place in project root
+   - Update `SPREADSHEET_ID` in `app/services/sheets.py`
+
+3. **Run the application**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+4. **Open browser**
+   - Go to `http://localhost:8000`
+   - Upload a receipt image
+   - Review and edit extracted data
+   - Submit to your Google Sheet

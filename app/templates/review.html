@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Extracted Data</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Review Extracted Data</h1>
+        <p>Review and edit the extracted ingredients before sending to your spreadsheet</p>
+        
+        <!-- Extraction Method Info -->
+        <div class="extraction-info">
+            {% if metadata %}
+                {% if metadata.method == "vlm" %}
+                    <div class="method-badge vlm">🧠 Extracted with AI Vision (GPT-4V)</div>
+                {% elif metadata.method == "ocr" %}
+                    <div class="method-badge ocr">📄 Extracted with OCR</div>
+                {% elif metadata.method == "ocr_fallback" %}
+                    <div class="method-badge fallback">⚠️ AI Vision failed, used OCR fallback</div>
+                {% endif %}
+                
+                {% if metadata.error %}
+                    <div class="extraction-error">
+                        <small>⚠️ {{ metadata.error }}</small>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <form id="review-form" action="/submit" method="post">
+            <div class="table-wrapper">
+                <table id="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Ingredient</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Notes</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                        <tr data-index="{{ loop.index0 }}">
+                            <td><input type="text" name="date" value="{{ item.Date }}" class="date-input"></td>
+                            <td><input type="text" name="ingredient" value="{{ item.Ingredient }}" class="ingredient-input"></td>
+                            <td><input type="text" name="quantity" value="{{ item.Quantity }}" class="quantity-input"></td>
+                            <td><input type="text" name="price" value="{{ item.Price }}" class="price-input"></td>
+                            <td><input type="text" name="notes" value="{{ item.Notes }}" class="notes-input"></td>
+                            <td><button type="button" onclick="removeRow(this)" class="remove-btn">❌</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="actions">
+                <button type="button" onclick="addRow()">Add Item</button>
+                <button type="submit">Send to Spreadsheet</button>
+                <a href="/" class="back-btn">Upload Another Receipt</a>
+            </div>
+            
+            <input type="hidden" name="items" id="items-data">
+        </form>
+    </div>
+
+    <script>
+        function removeRow(button) {
+            button.closest('tr').remove();
+        }
+        
+        function addRow() {
+            const tbody = document.querySelector('#data-table tbody');
+            const newRow = tbody.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" name="date" value="${new Date().toISOString().split('T')[0]}" class="date-input"></td>
+                <td><input type="text" name="ingredient" value="" class="ingredient-input"></td>
+                <td><input type="text" name="quantity" value="1" class="quantity-input"></td>
+                <td><input type="text" name="price" value="0.00" class="price-input"></td>
+                <td><input type="text" name="notes" value="" class="notes-input"></td>
+                <td><button type="button" onclick="removeRow(this)" class="remove-btn">❌</button></td>
+            `;
+        }
+        
+        document.getElementById('review-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect all row data
+            const rows = document.querySelectorAll('#data-table tbody tr');
+            const items = [];
+            
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                items.push({
+                    Date: inputs[0].value,
+                    Ingredient: inputs[1].value,
+                    Quantity: inputs[2].value,
+                    Price: inputs[3].value,
+                    Notes: inputs[4].value
+                });
+            });
+            
+            // Set the items data and submit
+            document.getElementById('items-data').value = JSON.stringify(items);
+            this.submit();
+        });
+    </script>
+</body>
+</html>

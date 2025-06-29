@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pillow
+easyocr
+google-api-python-client
+google-auth
+python-multipart
+jinja2
+openai
+python-dotenv

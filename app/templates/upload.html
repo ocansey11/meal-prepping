@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt OCR Tool</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🧾 Receipt OCR Tool</h1>
+        <p>Upload a receipt image to extract ingredients and prices</p>
+        
+        <form action="/upload" method="post" enctype="multipart/form-data" class="upload-form">
+            <div class="file-input-wrapper">
+                <input type="file" id="file" name="file" accept="image/*" required>
+                <label for="file" id="file-label">Choose Receipt Image</label>
+                <div id="file-info" class="file-info hidden">
+                    <span id="file-name"></span>
+                    <button type="button" id="clear-file" class="clear-btn">×</button>
+                </div>
+            </div>
+            
+            <div class="extraction-method">
+                <h3>Testing VLM Extraction:</h3>
+                <p>🧠 Using GPT-4V for accurate ingredient extraction</p>
+                <input type="hidden" name="method" value="vlm">
+            </div>
+            
+            <button type="submit" id="submit-btn" disabled>Process with AI Vision</button>
+        </form>
+        
+        <div class="info">
+            <h3>Supported formats:</h3>
+            <ul>
+                <li>JPG, PNG, JPEG images</li>
+                <li>Clear, well-lit receipt photos</li>
+                <li>Text should be readable</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const fileLabel = document.getElementById('file-label');
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const clearBtn = document.getElementById('clear-file');
+        const submitBtn = document.getElementById('submit-btn');
+
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Show file info
+                fileName.textContent = file.name;
+                fileLabel.style.display = 'none';
+                fileInfo.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Process Receipt';
+                
+                // Show file size if it's large
+                const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+                if (sizeInMB > 5) {
+                    fileName.textContent += ` (${sizeInMB}MB - Large file may take longer)`;
+                }
+            }
+        });
+
+        clearBtn.addEventListener('click', function() {
+            // Clear file selection
+            fileInput.value = '';
+            fileLabel.style.display = 'inline-block';
+            fileInfo.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Choose a file first';
+        });
+
+        // Handle form submission
+        document.querySelector('.upload-form').addEventListener('submit', function() {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+        });
+    </script>
+</body>
+</html>

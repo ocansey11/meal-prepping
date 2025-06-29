@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload History</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Upload History</h1>
+        <p>Your data has been successfully uploaded to the spreadsheet!</p>
+        
+        <div class="history-card">
+            <h3>✅ Last Upload</h3>
+            {% if last_upload %}
+            <div class="upload-details">
+                <p><strong>File:</strong> {{ last_upload.filename }}</p>
+                <p><strong>Method:</strong> 
+                    {% if last_upload.method == "vlm" %}
+                        🧠 AI Vision (GPT-4V)
+                    {% elif last_upload.method == "ocr" %}
+                        📄 OCR
+                    {% else %}
+                        {{ last_upload.method }}
+                    {% endif %}
+                </p>
+                <p><strong>Items:</strong> {{ last_upload.items_count }} ingredients</p>
+                <p><strong>Time:</strong> {{ last_upload.formatted_timestamp or last_upload.timestamp }}</p>
+            </div>
+            {% else %}
+            <p>No uploads yet.</p>
+            {% endif %}
+        </div>
+        
+        <div class="actions">
+            <a href="/" class="btn">Upload Another Receipt</a>
+            <a href="https://docs.google.com/spreadsheets/d/{{ spreadsheet_id }}" target="_blank" class="btn btn-secondary">View Spreadsheet</a>
+        </div>
+    </div>
+</body>
+</html>
